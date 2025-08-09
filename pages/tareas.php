@@ -143,7 +143,6 @@ ModalLabel" aria-hidden="true">
           <div class="mb-3">
             <label for="asignado_a" class="form-label">Asignado a</label>
             <select class="form-select" id="asignado_a" name="asignado_a">
-              <option value="">No asignado</option>
               <?php
               $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario");
               while ($usuario = mysqli_fetch_assoc($usuarios)) {
@@ -194,28 +193,38 @@ ModalLabel" aria-hidden="true">
           <div class="modal-body">
             <div class="mb-3">
               <label for="tituloEdit" class="form-label">Titulo</label>
-              <input type="text" class="form-control" id="tituloEdit" name="titulo" required placeholder="LB05-1540">
+              <input type="text" class="form-control" id="tituloEdit" name="titulo" required placeholder="Titulo de la tarea">
             </div>
             <div class="mb-3">
               <label for="descripcionEdit" class="form-label">Descripcion</label>
-              <input type="text" class="form-control" id="descripcionEdit" name="descripcion" required placeholder="Las aventuras de Sherlock Holmes">
+              <input type="text" class="form-control" id="descripcionEdit" name="descripcion" required placeholder="Descripcion de la tarea">
             </div>
             <div class="mb-3">
               <label for="asignadoAEdit" class="form-label">Asignado A</label>
-              <input type="text" class="form-control" id="asignadoAEdit" name="asignado_a" required placeholder="Arthur Conan Doyle">
+                <select class="form-select" id="asignadoAEdit" name="asignado_a">
+                  <?php
+                  $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario");
+                  while ($usuario = mysqli_fetch_assoc($usuarios)) {
+                    echo "<option value='{$usuario['id']}'>{$usuario['nombre_completo']}</option>";
+                  }
+                  ?>  
+              </Select>
             </div>
             <div class="mb-3">
               <label for="estadoEdit" class="form-label">Estado</label>
               <Select class="form-select" id="estadoEdit" name="estado">
-                <option value="Pendiente">Pendiente</option>
-                <option value="En_progreso">En progreso</option>
-                <option value="Completado">Completado</option>
+               <?php
+               $estados = ['Pendiente', 'En_progreso', 'Completado'];
+               foreach ($estados as $estado) {
+                echo "<option value=\"$estado\">".str_replace('_', ' ', $estado)."</option>";
+              }
+              ?>
               </Select>
             </div>
 
             <div class="mb-3">
               <label for="prioridadEdit" class="form-label">Prioridad</label>
-              <Select class="form-select" id="prioridadEdit" name="prioridad">
+              <Select class="form-select" id="prioridadEdit" name="prioridad" required placeholder="Prioridad de la tarea">
                 <option value="Baja">Baja</option>
                 <option value="Media">Media</option>
                 <option value="Alta">Alta</option>
@@ -226,7 +235,7 @@ ModalLabel" aria-hidden="true">
             </div>
             <div class="mb-3">
               <label for="fechaAsignacionEdit" class="form-label">Fecha limite</label>
-              <input type="datetime-local" class="form-control" id="fechaAsignacionEdit" name="fecha_asignacion" required>
+              <input type="datetime-local" class="form-control" id="fechaAsignacionEdit" name="fecha_asignacion" required placeholder="Fecha limite de la tarea">
             </div>
             <div class="text-center">
               <button type="submit" name="accion" value="editar" class="btn btn-success">Guardar</button>
@@ -239,24 +248,33 @@ ModalLabel" aria-hidden="true">
 
 
   <script>
-    function editarTarea(id_tarea) {
-      var editModal = new bootstrap.Modal(document.getElementById('editModal'));
-      editModal.show();
-      document.getElementById('id').value = id_tarea;
-      document.getElementById('spanNumTarea').innerText = id_tarea;
-      const titulo = document.getElementById('tarea-' + id_tarea);
-      const descripcion = fila.children[0].innerText;
-      const asignado_a = fila.children[1].innerText;
-      const estado = fila.children[2].innerText;
-      const prioridad = fila.children[3].innerText;
-      const fecha_asignacion = fila.children[4].innerText;
-      document.getElementById('tituloEdit').value = titulo;
-      document.getElementById('descripcionEdit').value = descripcion;
-      document.getElementById('asignadoAEdit').value = asignado_a;
-      document.getElementById('estadoEdit').value = estado;
-      document.getElementById('prioridadEdit').value = prioridad;
-      document.getElementById('fechaAsignacionEdit').value = fecha_asignacion;
-    }
+   function editarTarea(id_tarea) {
+  const tareaRow = document.getElementById('tarea-' + id_tarea);
+  if (tareaRow) {
+    const titulo = tareaRow.cells[0].innerText;
+    const descripcion = tareaRow.cells[1].innerText;
+    const asignadoId = tareaRow.getAttribute('data-asignado-id') || ''; 
+    const estado = tareaRow.cells[3].innerText.trim();
+    const prioridad = tareaRow.cells[4].innerText;
+    const fechaAsignacion = tareaRow.cells[5].innerText;
+
+    document.getElementById('id').value = id_tarea;
+    document.getElementById('tituloEdit').value = titulo;
+    document.getElementById('descripcionEdit').value = descripcion;
+    document.getElementById('asignadoAEdit').value = asignadoId;
+    document.getElementById('estadoEdit').value = estado;
+    document.getElementById('prioridadEdit').value = prioridad;
+    // Para fecha datetime-local, formatea si es necesario a formato yyyy-MM-ddTHH:mm
+    document.getElementById('fechaAsignacionEdit').value = fechaAsignacion.replace(' ', 'T');
+    document.getElementById('spanNumTarea').innerText = id_tarea;
+
+    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    editModal.show();
+  } else {
+    alert("Tarea no encontrada.");
+  }
+}
+
 
     function eliminarTarea(id_tarea) {
       if (confirm("¿Estás seguro de eliminar la tarea #" + id_tarea + "?")) {
