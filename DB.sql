@@ -23,14 +23,6 @@ CREATE TABLE tareas (
     FOREIGN KEY (asignado_a) REFERENCES usuario(id)
 );
 
-CREATE TABLE notificaciones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    mensaje TEXT NOT NULL,
-    benificiario INT NOT NULL,
-    tipo VARCHAR(50) NOT NULL,
-    fecha DATE NOT NULL,
-    fue_leido BOOLEAN DEFAULT FALSE
-);
 CREATE TABLE notas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tarea_id INT NOT NULL,

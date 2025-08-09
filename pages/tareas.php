@@ -98,19 +98,28 @@ if (isset($_POST['accion'])) {
         $estado_color = $tarea['activo'] == 1 ? 'success' : 'danger';
         $estado_nombre = $tarea['activo'] == 1  ? '<span data-feather="check-circle" class="align-text-bottom"></span>'
           : '<span data-feather="clock" class="align-text-bottom"></span>';
-        echo "<tr id=\"tarea-{$tarea['id']}\">
-                  <td>{$tarea['titulo']}</td>
-                  <td>{$tarea['descripcion']}</td>
-                  <td>" . ($tarea['asignado_a'] ? mysqli_fetch_assoc(mysqli_query($conn, "SELECT nombre_completo FROM usuario WHERE id = {$tarea['asignado_a']}"))['nombre_completo'] : 'No asignado') . "</td>
-                  <td>{$tarea['estado']}</td>
-                  <td>{$tarea['prioridad']}</td>
-                  <td>{$tarea['fecha_asignacion']}</td>
-                  <td><span class=\"badge text-bg-$estado_color\">$estado_nombre</span></td>
-                  <td>
-                    <button onclick='editarTarea({$tarea['id']})' class='btn btn-primary'><span data-feather=\"edit\" class=\"align-text-bottom\"></span></button>
-                    <button onclick='eliminarTarea({$tarea['id']})' class='btn btn-danger'><span data-feather=\"trash\" class=\"align-text-bottom\"></span></button>
-                  </td>
-                </tr>";
+        $asignado_id = $tarea['asignado_a'] ?? 0;
+        $asignado_nombre = 'No asignado';
+        if ($asignado_id) {
+        $res = mysqli_query($conn, "SELECT nombre_completo FROM usuario WHERE id = $asignado_id");
+        if ($fila = mysqli_fetch_assoc($res)) {
+          $asignado_nombre = $fila['nombre_completo'];
+        }
+        }
+
+        echo "<tr id='tarea-{$tarea['id']}' data-asignado-id='{$asignado_id}'>
+        <td>" . htmlspecialchars($tarea['titulo']) . "</td>
+        <td>" . htmlspecialchars($tarea['descripcion']) . "</td>
+        <td>" . htmlspecialchars($asignado_nombre) . "</td>
+        <td>" . htmlspecialchars($tarea['estado']) . "</td>
+        <td>" . htmlspecialchars($tarea['prioridad']) . "</td>
+        <td>" . $tarea['fecha_asignacion'] . "</td>
+        <td>
+          <button onclick='editarTarea({$tarea['id']})' class='btn btn-primary'><span data-feather=\"edit\" class=\"align-text-bottom\"></span></button>
+          <button onclick='eliminarTarea({$tarea['id']})' class='btn btn-danger'><span data-feather=\"trash\" class=\"align-text-bottom\"></span></button>
+        </td>
+      </tr>";
+
       }
       ?>
     </tbody>
@@ -213,21 +222,18 @@ ModalLabel" aria-hidden="true">
             <div class="mb-3">
               <label for="estadoEdit" class="form-label">Estado</label>
               <Select class="form-select" id="estadoEdit" name="estado">
-               <?php
-               $estados = ['Pendiente', 'En_progreso', 'Completado'];
-               foreach ($estados as $estado) {
-                echo "<option value=\"$estado\">".str_replace('_', ' ', $estado)."</option>";
-              }
-              ?>
+                <option value="pendiente">Pendiente</option>
+                <option value="en_progreso">En progreso</option>
+                <option value="completado">Completado</option>
               </Select>
             </div>
 
             <div class="mb-3">
               <label for="prioridadEdit" class="form-label">Prioridad</label>
               <Select class="form-select" id="prioridadEdit" name="prioridad" required placeholder="Prioridad de la tarea">
-                <option value="Baja">Baja</option>
-                <option value="Media">Media</option>
-                <option value="Alta">Alta</option>
+                <option value="baja">Baja</option>
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
               </Select>
             </div>
             <div class="mb-3">
@@ -248,12 +254,12 @@ ModalLabel" aria-hidden="true">
 
 
   <script>
-   function editarTarea(id_tarea) {
+  function editarTarea(id_tarea) {
   const tareaRow = document.getElementById('tarea-' + id_tarea);
   if (tareaRow) {
     const titulo = tareaRow.cells[0].innerText;
     const descripcion = tareaRow.cells[1].innerText;
-    const asignadoId = tareaRow.getAttribute('data-asignado-id') || ''; 
+    const asignadoId = tareaRow.getAttribute('data-asignado-id') || '';
     const estado = tareaRow.cells[3].innerText.trim();
     const prioridad = tareaRow.cells[4].innerText;
     const fechaAsignacion = tareaRow.cells[5].innerText;
