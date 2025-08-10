@@ -1,17 +1,7 @@
 <?php
 require '../system/session.php';
 require '../layout/header.php';
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: ../login.php");
-    exit();
-}
 
-if ($_SESSION['rol'] === 'admin') {
-  
-    echo "<h1>Bienvenido Admin</h1>";
-} else {
-    echo "<h1>Bienvenido Empleado</h1>";
-}
 $mensaje = [];
 if (isset($_POST['accion'])) {
   switch ($_POST['accion']) {
@@ -103,7 +93,14 @@ if (isset($_POST['accion'])) {
 }
 ?>
 
-
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Tareas</h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">
+      Agregar Tareas
+    </button>
+  </div>
+</div>
 
 <?php if (!empty($mensaje)): ?>
   <div class="alert alert-<?= $mensaje['tipo'] ?> alert-dismissible fade show" role="alert">
@@ -111,6 +108,22 @@ if (isset($_POST['accion'])) {
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 <?php endif; ?>
+
+<div class="table-responsive">
+  <table class="table table-striped table-sm">
+    <thead>
+      <tr>
+        <th>Titulo</th>
+        <th>Descripcion</th>
+        <th>Asignado a</th>
+        <th>Estado</th>
+        <th>Prioridad</th>
+        <th>Fecha Limite</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+
        <?php
       $tareas = mysqli_query($conn, "SELECT * FROM tareas WHERE activo !=0 ORDER BY fecha_asignacion ASC");
       foreach ($tareas as $tarea) {

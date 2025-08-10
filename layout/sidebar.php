@@ -1,11 +1,20 @@
+<?php
+if (!isset($_SESSION)) {
+    session_start();
+}
+$rol = $_SESSION['rol'] ?? null;
+?>
 
 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
     <div class="position-sticky pt-3 sidebar-sticky">
         <ul class="nav flex-column">
             <li class="nav-item">
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+            <span>Tareas</span>
+            </h6>
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="index.php"?'active':''?>" aria-current="page" href="./">
                     <span data-feather="bar-chart" class="align-text-bottom"></span>
-                    Dashboard
+                    Hoy
                 </a>
             </li>
             <li class="nav-item">
@@ -14,6 +23,9 @@
                     Reservar
                 </a>
             </li>
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+            <span>Proyectos</span>
+            </h6>
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="recibir.php"?'active':''?>" href="recibir.php">
                     <span data-feather="arrow-down-circle" class="align-text-bottom"></span>

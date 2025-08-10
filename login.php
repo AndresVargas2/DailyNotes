@@ -10,10 +10,11 @@ $mensaje_error = '';
 if (isset($_POST['usuario']) && isset($_POST['contra']) && !empty($_POST['usuario']) && !empty($_POST['contra'])) {
   $usuario = mysqli_real_escape_string($conn, $_POST['usuario']);
   $contra = $_POST['contra'];
+  $rol = $_POST['rol'] ?? 'empleado'; // Default role if not set
   $contra = hash('sha256', $contra); // -> 6dcd4ce23d88e2ee9568ba546c007c63a0b3f1f5b7f8e9b1c2f3a4e5b6c7d8e9
 
   // Verificar si el usuario existe
-  $result = mysqli_query($conn, "SELECT id, contra, estado FROM usuario WHERE (cedula = '$usuario' OR correo = '$usuario') LIMIT 1");
+  $result = mysqli_query($conn, "SELECT id, contra, estado, rol FROM usuario WHERE (cedula = '$usuario' OR correo = '$usuario') LIMIT 1");
 
   if (mysqli_num_rows($result) > 0) {
     $row = mysqli_fetch_assoc($result);
@@ -23,8 +24,10 @@ if (isset($_POST['usuario']) && isset($_POST['contra']) && !empty($_POST['usuari
     } else if ($row['contra'] != $contra) {
       //si la contraseña es incorrecta
       $mensaje_error = 'Contraseña incorrecta';
-    } else {
+    } else{
       $_SESSION['usuario_id'] = $row['id'];
+      $_SESSION['rol'] = $row['rol'];
+      $_SESSION['nombre'] = $row['nombre_completo'];
       header("Location: pages/");
       exit();
     }
@@ -42,7 +45,7 @@ if (isset($_POST['usuario']) && isset($_POST['contra']) && !empty($_POST['usuari
   <meta name="description" content="">
   <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
   <meta name="generator" content="Hugo 0.104.2">
-  <title>Login - Biblioteca</title>
+  <title>Login - Daily Notes</title>
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="css/login.css" rel="stylesheet">
 </head>
