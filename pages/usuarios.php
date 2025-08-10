@@ -236,7 +236,9 @@ if (!empty($mensaje)) {
         }
 
         function eliminarUsuario(id_usuario) {
-            if (confirm("¿Estás seguro de eliminar el usuario #" + id_usuario + "?")) {
+            const fila = document.getElementById('usuario-' + id_usuario);
+            const nombre = fila ? fila.children[1].innerText.trim() : '';
+            if (confirm(`¿Estás seguro de eliminar el usuario #${id_usuario} con el nombre de: ${nombre}?`)) {
                 const form = document.createElement('form');
                 form.method = 'post';
                 form.action = '';
@@ -261,12 +263,12 @@ if (!empty($mensaje)) {
                 fetch(`https://api.hacienda.go.cr/fe/ae?identificacion=${cedulaInput}`)
                     .then(response => response.json())
                     .then(data => {
-                        if(data.nombre_completo && data.nombre_completo.length > 0) {
+                        if(data.nombre && data.nombre.length > 0) {
                             const inputNombre=document.getElementById(inputIdNombre);
-                            if(inputNombre.value !== '' && inputNombre.value !== data.nombre_completo) {
-                                confirm(`La cédula ${cedulaInput} corresponde a ${data.nombre_completo}. ¿Desea actualizar el nombre?`) ? inputNombre.value = data.nombre_completo : null;
+                            if(inputNombre.value !== '' && inputNombre.value !== data.nombre) {
+                                confirm(`La cédula ${cedulaInput} corresponde a ${data.nombre}. ¿Desea actualizar el nombre?`) ? inputNombre.value = data.nombre : null;
                             }else if(inputNombre.value === '') {
-                                inputNombre.value = data.nombre_completo;
+                                inputNombre.value = data.nombre;
                             }
                         }
                     })

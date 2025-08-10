@@ -22,10 +22,9 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="tareas.php"?'active':''?>" href="tareas.php">
-                    <span data-feather="task-open" class="align-text-bottom"></span>
+                    <span data-feather="check-square" class="align-text-bottom"></span>
                     Tareas
-                </a>
-            </li>
+                </a>       
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="clientes.php"?'active':''?>" href="clientes.php">
                     <span data-feather="users" class="align-text-bottom"></span>

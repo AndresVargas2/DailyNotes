@@ -5,7 +5,7 @@ require '../layout/header.php';
 $mensaje = [];
 if (isset($_POST['accion'])) {
   switch ($_POST['accion']) {
-    case 'agregar':
+    case 'agregarTarea':
       $titulo = mysqli_real_escape_string($conn, $_POST['titulo']);
       $descripcion = mysqli_real_escape_string($conn, $_POST['descripcion']);
       $asignado_a = mysqli_real_escape_string($conn, $_POST['asignado_a']);
@@ -21,7 +21,7 @@ if (isset($_POST['accion'])) {
       }
       break;
 
-    case 'editar':
+    case 'editarTarea':
       $id_tarea = mysqli_real_escape_string($conn, $_POST['id']);
       if (is_numeric($id_tarea) && $id_tarea > 0 && $id_tarea == (int)$id_tarea) {
         $titulo = mysqli_real_escape_string($conn, $_POST['titulo']);
@@ -44,7 +44,7 @@ if (isset($_POST['accion'])) {
       }
       break;
 //buenas
-    case 'eliminar':
+    case 'eliminarTarea':
       $id_tarea = mysqli_real_escape_string($conn, $_POST['id']);
       if (is_numeric($id_tarea) && $id_tarea > 0 && $id_tarea == (int)$id_tarea) {
         $sql = "UPDATE tareas SET activo = 0 WHERE id='$id_tarea'";
@@ -57,7 +57,39 @@ if (isset($_POST['accion'])) {
         $mensaje = ['mensaje' => "ERROR.", 'tipo' => 'danger'];
       }
       break;
-  }
+  
+    case 'agregarNota':
+      $tarea_id = mysqli_real_escape_string($conn, $_POST['tarea_id']);
+      $contenido = mysqli_real_escape_string($conn, $_POST['contenido']);
+      $sql = "INSERT INTO notas (tarea_id, contenido) VALUES ('$tarea_id', '$contenido')";
+      if (mysqli_query($conn, $sql)) {
+          $mensaje = ['mensaje' => 'Nota agregada correctamente.', 'tipo' => 'success'];
+      } else {
+          $mensaje = ['mensaje' => 'Error al agregar nota: ' . mysqli_error($conn), 'tipo' => 'danger'];
+      }
+      break;
+
+    case 'editarNota':
+      $id = mysqli_real_escape_string($conn, $_POST['id']);
+      $contenido = mysqli_real_escape_string($conn, $_POST['contenido']);
+      $sql = "UPDATE notas SET contenido='$contenido' WHERE id='$id'";
+      if (mysqli_query($conn, $sql)) {
+          $mensaje = ['mensaje' => 'Nota actualizada correctamente.', 'tipo' => 'success'];
+      } else {
+          $mensaje = ['mensaje' => 'Error al actualizar nota: ' . mysqli_error($conn), 'tipo' => 'danger'];
+      }
+      break;
+
+    case 'eliminarNota':
+      $id = mysqli_real_escape_string($conn, $_POST['id']);
+      $sql = "DELETE FROM notas WHERE id='$id'";
+      if (mysqli_query($conn, $sql)) {
+          $mensaje = ['mensaje' => 'Nota eliminada correctamente.', 'tipo' => 'success'];
+      } else {
+          $mensaje = ['mensaje' => 'Error al eliminar nota: ' . mysqli_error($conn), 'tipo' => 'danger'];
+      }
+      break;
+  } 
 }
 ?>
 
@@ -117,6 +149,8 @@ if (isset($_POST['accion'])) {
         <td>
           <button onclick='editarTarea({$tarea['id']})' class='btn btn-primary'><span data-feather=\"edit\" class=\"align-text-bottom\"></span></button>
           <button onclick='eliminarTarea({$tarea['id']})' class='btn btn-danger'><span data-feather=\"trash\" class=\"align-text-bottom\"></span></button>
+          <button onclick='verNotas({$tarea['id']})' class='btn btn-info'><span data-feather=\"file-text\" class=\"align-text-bottom\"></span></button>
+
         </td>
       </tr>";
 
@@ -129,7 +163,7 @@ if (isset($_POST['accion'])) {
 
 
 
-<!-- Modal para agregar-->
+<!-- Modal para agregar Tareas-->
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="add
 ModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -140,7 +174,7 @@ ModalLabel" aria-hidden="true">
       </div>
       <form method="POST">
         <div class="modal-body">
-          <input type="hidden" name="accion" value="agregar">
+          <input type="hidden" name="accion" value="agregarTarea">
           <div class="mb-3">
             <label for="titulo" class="form-label">Titulo</label>
             <input type="text" class="form-control" id="titulo" name="titulo" required>
@@ -189,7 +223,7 @@ ModalLabel" aria-hidden="true">
     </div>
   </div>
 </div>
-  <!-- Modal de editar -->
+  <!-- Modal de editar Tareas -->
   <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -244,16 +278,43 @@ ModalLabel" aria-hidden="true">
               <input type="datetime-local" class="form-control" id="fechaAsignacionEdit" name="fecha_asignacion" required placeholder="Fecha limite de la tarea">
             </div>
             <div class="text-center">
-              <button type="submit" name="accion" value="editar" class="btn btn-success">Guardar</button>
+              <button type="submit" name="accion" value="editarTarea" class="btn btn-success">Guardar</button>
             </div>
           </div>
         </form>
       </div>
     </div>
   </div>
+  <!-- Modal para Notas-->
+<div class="modal fade" id="notasModal" tabindex="-1" aria-labelledby="notasModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notasModalLabel">Notas de la tarea <span id="tituloTareaNota"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div id="listaNotas"></div>
+        <hr>
+        <form id="formNota">
+          <input type="hidden" name="accion" value="agregarNota" id="accionNota">
+          <input type="hidden" name="tarea_id" id="tarea_id_nota">
+          <input type="hidden" name="id" id="idNota">
+          <div class="mb-3">
+            <label for="contenidoNota" class="form-label">Contenido</label>
+            <textarea class="form-control" id="contenidoNota" name="contenido" rows="4" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" id="btnGuardarNota">Guardar Nota</button>
+          <button type="button" class="btn btn-secondary" onclick="limpiarFormularioNota()">Limpiar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 
   <script>
+    // Funciones para manejar las acciones de las tareas
   function editarTarea(id_tarea) {
   const tareaRow = document.getElementById('tarea-' + id_tarea);
   if (tareaRow) {
@@ -294,12 +355,76 @@ ModalLabel" aria-hidden="true">
         const accionInput = document.createElement('input');
         accionInput.type = 'hidden';
         accionInput.name = 'accion';
-        accionInput.value = 'eliminar';
+        accionInput.value = 'eliminarTarea';
         form.appendChild(accionInput);
         document.body.appendChild(form);
         form.submit();
       }
     }
+    // Función para ver notas de una tarea
+    function verNotas(tareaId) {
+  limpiarFormularioNota();
+  document.getElementById('tarea_id_nota').value = tareaId;
+
+  const tareaRow = document.getElementById('tarea-' + tareaId);
+  const tituloTarea = tareaRow ? tareaRow.cells[0].innerText : 'Tarea'; // <- aquí el cambio
+  document.getElementById('tituloTareaNota').innerText = tituloTarea;
+
+  const notasModal = new bootstrap.Modal(document.getElementById('notasModal'));
+  notasModal.show();
+
+  fetch('cargar_notas.php?tarea_id=' + tareaId)
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('listaNotas').innerHTML = html;
+    });
+}
+
+
+// Función para limpiar el formulario de notas
+function limpiarFormularioNota() {
+  document.getElementById('formNota').reset();
+  document.getElementById('accionNota').value = 'agregarNota';
+  document.getElementById('idNota').value = '';
+}
+
+document.getElementById('formNota').addEventListener('submit', function(e){
+  e.preventDefault();
+  const formData = new FormData(this);
+
+  fetch('', { // mismo archivo actual
+    method: 'POST',
+    body: formData
+  }).then(response => response.text())
+    .then(() => {
+      verNotas(formData.get('tarea_id')); // recarga notas
+      limpiarFormularioNota();
+    });
+});
+// Funciones para editar y eliminar notas
+function editarNota(id, contenido) {
+  document.getElementById('accionNota').value = 'editarNota';
+  document.getElementById('idNota').value = id;
+  document.getElementById('contenidoNota').value = contenido;
+}
+// Función para eliminar nota
+function eliminarNota(id) {
+  if(confirm('¿Eliminar esta nota?')) {
+    const formData = new FormData();
+    formData.append('accion', 'eliminarNota');
+    formData.append('id', id);
+
+    fetch('', {
+      method: 'POST',
+      body: formData
+    }).then(() => {
+      // Asumiendo que la ventana de notas está abierta, recarga la lista
+      const tareaId = document.getElementById('tarea_id_nota').value;
+      verNotas(tareaId);
+    });
+  }
+}
   </script>
   <?php
   require '../layout/footer.php';
+  ?>

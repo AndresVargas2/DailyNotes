@@ -118,7 +118,7 @@ if (!empty($mensaje)) {
         </tbody>
     </table>
 
-    <!-- Modal de agregar cliente -->
+    <!-- Modal de  cliente -->
     <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -145,7 +145,7 @@ if (!empty($mensaje)) {
                             <input type="email" class="form-control" id="correo" name="correo" required placeholder="Correo electrónico">
                         </div>
                         <div class="text-center">
-                            <button type="submit" name="accion" value="agregar" class="btn btn-success">Guardar</button>
+                            <button type="submit" name="accion" value="Tareas" class="btn btn-success">Guardar</button>
                         </div>
                     </div>
                 </form>
