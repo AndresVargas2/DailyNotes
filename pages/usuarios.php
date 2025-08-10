@@ -6,11 +6,12 @@ if (isset($_POST['accion'])) {
     switch ($_POST['accion']) {
         case 'agregar':
             $cedula = mysqli_real_escape_string($conn, $_POST['cedula']);
-            $nombre = mysqli_real_escape_string($conn, $_POST['nombre']);
+            $nombre_completo = mysqli_real_escape_string($conn, $_POST['nombre_completo']);
             $correo = mysqli_real_escape_string($conn, $_POST['correo']);
+            $rol = mysqli_real_escape_string($conn, $_POST['rol']);
             $contra = isset($_POST['contra']) ? $_POST['contra'] : '';
             $contra_hash = hash('sha256', $contra);
-            $sql = "INSERT INTO usuario (nombre, correo, contra, cedula, fecha_creacion, estado) VALUES ('$nombre', '$correo', '$contra_hash', '$cedula', current_timestamp(), 1)";
+            $sql = "INSERT INTO usuario (nombre_completo, correo, contra, rol, cedula, fecha_registro, estado) VALUES ('$nombre_completo', '$correo', '$contra_hash','$rol', '$cedula', current_timestamp(), 1)";
             if (mysqli_query($conn, $sql)) {
                 $mensaje['mensaje'] = "Usuario agregado correctamente.";
                 $mensaje['tipo'] = 'success';
@@ -21,18 +22,19 @@ if (isset($_POST['accion'])) {
             break;
 
         case 'editar':
-            $id_usuario = mysqli_real_escape_string($conn, $_POST['id_usuario']);
+            $id_usuario = mysqli_real_escape_string($conn, $_POST['id']);
             if(is_numeric($id_usuario) && $id_usuario > 0 && $id_usuario == (int)$id_usuario) {
                 $cedula = mysqli_real_escape_string($conn, $_POST['cedula']);
-                $nombre = mysqli_real_escape_string($conn, $_POST['nombre']);
+                $nombre_completo = mysqli_real_escape_string($conn, $_POST['nombre_completo']);
                 $correo = mysqli_real_escape_string($conn, $_POST['correo']);
+                $rol = mysqli_real_escape_string($conn, $_POST['rol']);
                 $contra = isset($_POST['contra']) ? $_POST['contra'] : '';
                 $setContra = '';
                 if ($contra !== '') {
                     $contra_hash = hash('sha256', $contra);
                     $setContra = ", contra='$contra_hash'";
                 }
-                $sql = "UPDATE usuario SET nombre='$nombre', correo='$correo', cedula='$cedula' $setContra WHERE id='$id_usuario'";
+                $sql = "UPDATE usuario SET nombre_completo='$nombre_completo', correo='$correo', cedula='$cedula', rol = '$rol' $setContra WHERE id='$id_usuario'";
                 if (mysqli_query($conn, $sql)) {
                     $mensaje['mensaje'] = "Usuario actualizado correctamente.";
                     if($setContra !== '') {
@@ -50,7 +52,7 @@ if (isset($_POST['accion'])) {
             }
 
         case 'eliminar':
-            $id_usuario = mysqli_real_escape_string($conn, $_POST['id_usuario']);
+            $id_usuario = mysqli_real_escape_string($conn, $_POST['id']);
             if(is_numeric($id_usuario) && $id_usuario > 0 && $id_usuario == (int)$id_usuario) {
                 $sql = "UPDATE usuario SET estado = 0 WHERE id='$id_usuario'";
                 if (mysqli_query($conn, $sql)) {
@@ -69,7 +71,7 @@ if (isset($_POST['accion'])) {
 }
 ?>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Mantenimientos de Usuarios</h1>
+    <h1 class="h2">Mantenimientos de Personal</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">
             Agregar
@@ -93,6 +95,7 @@ if (!empty($mensaje)) {
                 <th scope="col">Cedula</th>
                 <th scope="col">Nombre</th>
                 <th scope="col">Correo</th>
+                <th scope="col">Rol</th>
                 <th scope="col">Fecha de Creación</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Acciones</th>
@@ -100,7 +103,7 @@ if (!empty($mensaje)) {
         </thead>
         <tbody>
             <?php
-            $usuarios = mysqli_query($conn, "SELECT * FROM usuario WHERE estado != 0 ORDER BY nombre ASC");
+            $usuarios = mysqli_query($conn, "SELECT * FROM usuario WHERE estado != 0 ORDER BY nombre_completo ASC");
             if(mysqli_num_rows($usuarios)==0){
                 echo "<tr><td colspan='6' class='text-center'>No hay usuarios registrados.</td></tr>";
             }else{
@@ -110,9 +113,10 @@ if (!empty($mensaje)) {
                         : '<span data-feather="clock" class="align-text-bottom"></span>';
                     echo "<tr id=\"usuario-{$usuario['id']}\">
                                         <td>{$usuario['cedula']}</td>
-                                        <td>{$usuario['nombre']}</td>
+                                        <td>{$usuario['nombre_completo']}</td>
                                         <td>{$usuario['correo']}</td>
-                                        <td>{$usuario['fecha_creacion']}</td>
+                                        <td>{$usuario['rol']}</td>
+                                        <td>{$usuario['fecha_registro']}</td>
                                         <td><span class=\"badge text-bg-$estado_color\">$estado_nombre</span></td>
                                         <td>
                                             <button onclick='editarUsuario({$usuario['id']})' class='btn btn-primary'><span data-feather=\"edit\" class=\"align-text-bottom\"></span></button>
@@ -124,7 +128,7 @@ if (!empty($mensaje)) {
             ?>
         </tbody>
     </table>
-
+</div>
     <!-- Modal de agregar usuario -->
     <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -137,15 +141,23 @@ if (!empty($mensaje)) {
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="cedula" class="form-label">Cedula</label>
-                            <input type="text" class="form-control" id="cedula" name="cedula" required placeholder="Cedula del usuario" oninput="checkCedula(this.value, 'nombre')">
+                            <input type="text" class="form-control" id="cedula" name="cedula" required placeholder="Cedula del usuario" oninput="checkCedula(this.value, 'nombre_completo')">
                         </div>
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" required placeholder="Nombre del usuario">
+                            <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" required placeholder="Nombre del usuario">
                         </div>
                         <div class="mb-3">
                             <label for="correo" class="form-label">Correo</label>
                             <input type="email" class="form-control" id="correo" name="correo" required placeholder="Correo electrónico">
+                        </div>
+                        <div class="mb-3">
+                            <label for="rol" class="form-label">Rol</label>
+                            <select class="form-select" id="rol" name="rol" required>
+                                <option value="" disabled selected>Seleccione un rol</option>
+                                <option value="admin">Administrador</option>
+                                <option value="empleado">Empleado</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="contra" class="form-label">Contraseña</label>
@@ -162,54 +174,65 @@ if (!empty($mensaje)) {
 
     <!-- Modal de editar usuario -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="editModalLabel">Editar Usuario #<span id="spanNumUsuario"></span></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post" action="">
-                    <input type="hidden" name="id_usuario" id="id_usuario">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="cedulaEdit" class="form-label">Cedula</label>
-                            <input type="text" class="form-control" id="cedulaEdit" name="cedula" required placeholder="Cedula del usuario" oninput="checkCedula(this.value, 'nombreEdit')">
-                        </div>
-                        <div class="mb-3">
-                            <label for="nombreEdit" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="nombreEdit" name="nombre" required placeholder="Nombre del usuario">
-                        </div>
-                        <div class="mb-3">
-                            <label for="correoEdit" class="form-label">Correo</label>
-                            <input type="email" class="form-control" id="correoEdit" name="correo" required placeholder="Correo electrónico">
-                        </div>
-                        <div class="mb-3">
-                            <label for="contraEdit" class="form-label">Contraseña (dejar en blanco para no cambiar)</label>
-                            <input type="password" class="form-control" id="contraEdit" name="contra" placeholder="Nueva contraseña">
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" name="accion" value="editar" class="btn btn-success">Guardar</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="editModalLabel">Editar Usuario #<span id="spanNumUsuario"></span></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="">
+        <input type="hidden" name="id" id="id">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="cedulaEdit" class="form-label">Cédula</label>
+            <input type="text" class="form-control" id="cedulaEdit" name="cedula" required placeholder="Cédula del usuario" oninput="checkCedula(this.value, 'nombreEdit')">
+          </div>
+          <div class="mb-3">
+            <label for="nombreEdit" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombreEdit" name="nombre_completo" required placeholder="Nombre del usuario">
+          </div>
+          <div class="mb-3">
+            <label for="correoEdit" class="form-label">Correo</label>
+            <input type="email" class="form-control" id="correoEdit" name="correo" required placeholder="Correo electrónico">
+          </div>
+          <div class="mb-3">
+            <label for="rolEdit" class="form-label">Rol</label>
+            <select class="form-select" id="rolEdit" name="rol" required>
+              <option value="" disabled selected>Seleccione un rol</option>
+              <option value="admin">Administrador</option>
+              <option value="empleado">Empleado</option>
+            </select>
+          </div> <!-- cierre div rolEdit -->
+          <div class="mb-3">
+            <label for="contraEdit" class="form-label">Contraseña (dejar en blanco para no cambiar)</label>
+            <input type="password" class="form-control" id="contraEdit" name="contra" placeholder="Nueva contraseña">
+          </div>
+          <div class="text-center">
+            <button type="submit" name="accion" value="editar" class="btn btn-success">Guardar</button>
+          </div>
+        </div> <!-- cierre modal-body -->
+      </form>
+    </div> <!-- cierre modal-content -->
+  </div> <!-- cierre modal-dialog -->
+</div> <!-- cierre modal -->
+</div> <!-- cierre table-responsive -->
 
     <script>
         function editarUsuario(id_usuario) {
             var editModal = new bootstrap.Modal(document.getElementById('editModal'));
             editModal.show();
-            document.getElementById('id_usuario').value = id_usuario;
+            document.getElementById('id').value = id_usuario;
             document.getElementById('spanNumUsuario').innerText = id_usuario;
             const fila = document.getElementById('usuario-' + id_usuario);
-            const cedula = fila.children[0].innerText;
-            const nombre = fila.children[1].innerText;
-            const correo = fila.children[2].innerText;
+            const cedula = fila.children[0].innerText.trim();
+            const nombre = fila.children[1].innerText.trim();
+            const correo = fila.children[2].innerText.trim();
+            const rol = fila.children[3].innerText.trim();
             document.getElementById('cedulaEdit').value = cedula;
             document.getElementById('nombreEdit').value = nombre;
             document.getElementById('correoEdit').value = correo;
             document.getElementById('contraEdit').value = '';
+            document.getElementById('rolEdit').value = rol;
         }
 
         function eliminarUsuario(id_usuario) {
@@ -219,7 +242,7 @@ if (!empty($mensaje)) {
                 form.action = '';
                 const input = document.createElement('input');
                 input.type = 'hidden';
-                input.name = 'id_usuario';
+                input.name = 'id';
                 input.value = id_usuario;
                 form.appendChild(input);
                 const accionInput = document.createElement('input');
@@ -238,12 +261,12 @@ if (!empty($mensaje)) {
                 fetch(`https://api.hacienda.go.cr/fe/ae?identificacion=${cedulaInput}`)
                     .then(response => response.json())
                     .then(data => {
-                        if(data.nombre && data.nombre.length > 0) {
+                        if(data.nombre_completo && data.nombre_completo.length > 0) {
                             const inputNombre=document.getElementById(inputIdNombre);
-                            if(inputNombre.value !== '' && inputNombre.value !== data.nombre) {
-                                confirm(`La cédula ${cedulaInput} corresponde a ${data.nombre}. ¿Desea actualizar el nombre?`) ? inputNombre.value = data.nombre : null;
+                            if(inputNombre.value !== '' && inputNombre.value !== data.nombre_completo) {
+                                confirm(`La cédula ${cedulaInput} corresponde a ${data.nombre_completo}. ¿Desea actualizar el nombre?`) ? inputNombre.value = data.nombre_completo : null;
                             }else if(inputNombre.value === '') {
-                                inputNombre.value = data.nombre;
+                                inputNombre.value = data.nombre_completo;
                             }
                         }
                     })

@@ -270,7 +270,6 @@ ModalLabel" aria-hidden="true">
     document.getElementById('asignadoAEdit').value = asignadoId;
     document.getElementById('estadoEdit').value = estado;
     document.getElementById('prioridadEdit').value = prioridad;
-    // Para fecha datetime-local, formatea si es necesario a formato yyyy-MM-ddTHH:mm
     document.getElementById('fechaAsignacionEdit').value = fechaAsignacion.replace(' ', 'T');
     document.getElementById('spanNumTarea').innerText = id_tarea;
 
