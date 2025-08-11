@@ -6,11 +6,193 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
-if ($_SESSION['rol'] === 'admin') {
+    <div class=\"modal fade\" id=\"addModal\" tabindex=\"-1\" aria-labelledby=\"addModalLabel\" aria-hidden=\"true\">
+  <div class=\"modal-dialog\">
+    <div class=\"modal-content\">
+      <div class=\"modal-header\">
+        <h5 class=\"modal-title\" id=\"addModalLabel\">Agregar Tarea</h5>
+        <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>
+      </div>
+      <form method=\"POST\">
+        <div class=\"modal-body\">
+          <input type=\"hidden\" name=\"accion\" value=\"agregarTarea\">
+          <div class=\"mb-3\">
+            <label for=\"titulo\" class=\"form-label\">Titulo</label>
+            <input type=\"text\" class=\"form-control\" id=\"titulo\" name=\"titulo\" required>
+          </div>
+          <div class=\"mb-3\">
+            <label for=\"descripcion\" class=\"form-label\">Descripcion</label>
+            <textarea class=\"form-control\" id=\"descripcion\" name=\"descripcion\"></textarea>
+            </div>
+            <div class=\"mb-3\">
+            <label for=\"asignado_a\" class=\"form-label\">Asignado a</label>
+            <select class=\"form-select\" id=\"asignado_a\" name=\"asignado_a\">"
+              ;
+              $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario");
+              while ($usuario = mysqli_fetch_assoc($usuarios)) {
+                echo "<option value='{$usuario['id']}'>{$usuario['nombre_completo']}</option>";
+              }
+              echo "
+            </select>
+          </div>
+          <div class=\"mb-3\">
+            <label for=\"estado\" class=\"form-label\">Estado</label>
+            <select class=\"form-select\" id=\"estado\" name=\"estado\">
+              <option value=\"pendiente\">Pendiente</option>
+              <option value=\"en_progreso\">En progreso</option>
+              <option value=\"completado\">Completado</option>
+            </select>
+          </div>
+          <div class=\"mb-3\">
+            <label for=\"prioridad\" class=\"form-label\">Prioridad</label>
+            <select class=\"form-select\" id=\"prioridad\" name=\"prioridad\">
+              <option value=\"baja\">Baja</option>
+              <option value=\"media\">Media</option>
+              <option value=\"alta\">Alta</option>
+            </select>
+          </div>
+          <div class=\"mb-3\">
+            <label for=\"fecha_asignacion\" class=\"form-label\">Fecha Limite</label>
+            <input type=\"datetime-local\" class=\"form-control\" id=\"fecha_asignacion\" name=\"fecha_asignacion\" required>
+          </div>
+        </div>
+        <div class=\"modal-footer\">
+          <button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\">Cerrar</button>
+          <button type=\"submit\" class=\"btn btn-primary\">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+    <h1>Bienvenido Administrador</h1>
+    <button class=\"btn btn-success mb-3\" data-bs-toggle=\"modal\" data-bs-target=\"#addModal\">Agregar Tarea</button>
+    <div class=\"table-responsive\">
+  <table class=\"table table-striped table-hover align-middle\">
+    <thead>
+      <tr>
+        <th>Titulo</th>
+        <th>Descripcion</th>
+        <th>Asignado a</th>
+        <th>Estado</th>
+        <th>Prioridad</th>
+        <th>Fecha Limite</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+    //modal para editar tareas
+    <div class=\"modal fade\" id=\"editModal\" tabindex=\"-1\" aria-labelledby=\"editModalLabel\" aria-hidden=\"true\">
+    <div class=\"modal-dialog modal-dialog-centered\">
+      <div class=\"modal-content\">
+        <div class=\"modal-header\">
+          <h1 class=\"modal-title fs-5\" id=\"editModalLabel\">Editar Tarea #<span id=\"spanNumTarea\"></span></h1>
+          <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>
+        </div>
+        <form method=\"post\" action=\"\">  
+          <input type=\"hidden\" name=\"id\" id=\"id\">
+          <div class=\"modal-body\">
+            <div class=\"mb-3\">
+              <label for=\"tituloEdit\" class=\"form-label\">Titulo</label>
+              <input type=\"text\" class=\"form-control\" id=\"tituloEdit\" name=\"titulo\" required placeholder=\"Titulo de la tarea\">
+            </div>
+            <div class=\"mb-3\">
+              <label for=\"descripcionEdit\" class=\"form-label\">Descripcion</label>
+              <input type=\"text\" class=\"form-control\" id=\"descripcionEdit\" name=\"descripcion\" required placeholder=\"Descripcion de la tarea\">
+            </div>
+            <div class=\"mb-3\">
+              <label for=\"asignadoAEdit\" class=\"form-label\">Asignado A</label>
+                <select class=\"form-select\" id=\"asignadoAEdit\" name=\"asignado_a\">
+                  ";
+                  $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario");
+                  while ($usuario = mysqli_fetch_assoc($usuarios)) {
+                    echo "<option value='{$usuario['id']}'>{$usuario['nombre_completo']}</option>";
+                  }
+                  echo "  
+              </Select>
+            </div>
+            <div class=\"mb-3\">
+              <label for=\"estadoEdit\" class=\"form-label\">Estado</label>
+              <Select class=\"form-select\" id=\"estadoEdit\" name=\"estado\">
+                <option value=\"pendiente\">Pendiente</option>
+                <option value=\"en_progreso\">En progreso</option>
+                <option value=\"completado\">Completado</option>
+              </Select>
+            </div>
+
+            <div class=\"mb-3\">
+              <label for=\"prioridadEdit\" class=\"form-label\">Prioridad</label>
+              <Select class=\"form-select\" id=\"prioridadEdit\" name=\"prioridad\" required placeholder=\"Prioridad de la tarea\">
+                <option value=\"baja\">Baja</option>
+                <option value=\"media\">Media</option>
+                <option value=\"alta\">Alta</option>
+              </Select>
+            </div>
+            <div class=\"mb-3\">
+              </select>
+            </div>
+            <div class=\"mb-3\">
+              <label for=\"fechaAsignacionEdit\" class=\"form-label\">Fecha limite</label>
+              <input type=\"datetime-local\" class=\"form-control\" id=\"fechaAsignacionEdit\" name=\"fecha_asignacion\" required placeholder=\"Fecha limite de la tarea\">
+            </div>
+            <div class=\"text-center\">
+              <button type=\"submit\" name=\"accion\" value=\"editarTarea\" class=\"btn btn-success\">Guardar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  ";
   
-    echo "<h1>Bienvenido Admin</h1>";
 } else {
-    echo "<h1>Bienvenido Empleado</h1>";
+    // Cambié la comparación para que sea con usuario_id en lugar de nombre
+    $usuario_id = (int)$_SESSION['usuario_id'];  // mejor asegurar que sea entero para seguridad
+    $tareas = mysqli_query($conn, "SELECT * FROM tareas 
+        WHERE activo != 0 
+        AND asignado_a = $usuario_id
+        ORDER BY fecha_asignacion ASC");
+    echo "
+    <h1>Bienvenid@ $_SESSION[nombre] </h1>
+    <div class=\"table-responsive\">
+      <table class=\"table table-striped table-hover align-middle\">
+        <thead>
+          <tr>
+            <th>Titulo</th>
+            <th>Descripcion</th>
+            <th>Asignado a</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Fecha Limite</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+        <div class=\"modal fade\" id=\"notasModal\" tabindex=\"-1\" aria-labelledby=\"notasModalLabel\" aria-hidden=\"true\">
+        <div class=\"modal-dialog modal-lg\">
+          <div class=\"modal-content\">
+            <div class=\"modal-header\">
+              <h5 class=\"modal-title\" id=\"notasModalLabel\">Notas de la tarea: <span id=\"tituloTareaNota\"></span></h5>
+              <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Cerrar\"></button>
+            </div>
+            <div class=\"modal-body\">
+              <div id=\"listaNotas\"></div>
+              <hr>
+              <form id=\"formNota\">
+                <input type=\"hidden\" name=\"accion\" value=\"agregarNota\" id=\"accionNota\">
+                <input type=\"hidden\" name=\"tarea_id\" id=\"tarea_id_nota\">
+                <input type=\"hidden\" name=\"id\" id=\"idNota\">
+                <div class=\"mb-3\">
+                  <label for=\"contenidoNota\" class=\"form-label\">Contenido</label>
+                  <textarea class=\"form-control\" id=\"contenidoNota\" name=\"contenido\" rows=\"4\" required></textarea>
+                </div>
+                <button type=\"submit\" class=\"btn btn-primary\" id=\"btnGuardarNota\">Guardar Nota</button>
+                <button type=\"button\" class=\"btn btn-secondary\" onclick=\"limpiarFormularioNota()\">Limpiar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    ";
 }
 $mensaje = [];
 if (isset($_POST['accion'])) {
@@ -103,203 +285,55 @@ if (isset($_POST['accion'])) {
 }
 ?>
 
-
-
 <?php if (!empty($mensaje)): ?>
   <div class="alert alert-<?= $mensaje['tipo'] ?> alert-dismissible fade show" role="alert">
     <strong><?= $mensaje['mensaje'] ?></strong>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 <?php endif; ?>
-       <?php
-      $tareas = mysqli_query($conn, "SELECT * FROM tareas WHERE activo !=0 ORDER BY fecha_asignacion ASC");
-      foreach ($tareas as $tarea) {
-        $estado_color = $tarea['activo'] == 1 ? 'success' : 'danger';
-        $estado_nombre = $tarea['activo'] == 1  ? '<span data-feather="check-circle" class="align-text-bottom"></span>'
-          : '<span data-feather="clock" class="align-text-bottom"></span>';
-        $asignado_id = $tarea['asignado_a'] ?? 0;
-        $asignado_nombre = 'No asignado';
-        if ($asignado_id) {
+
+<?php
+$tareas = mysqli_query($conn, "SELECT * FROM tareas WHERE activo != 0 ORDER BY fecha_asignacion ASC");
+
+foreach ($tareas as $tarea) {
+    $asignado_id = $tarea['asignado_a'] ?? 0;
+    $asignado_nombre = 'No asignado';
+
+    if ($asignado_id) {
         $res = mysqli_query($conn, "SELECT nombre_completo FROM usuario WHERE id = $asignado_id");
         if ($fila = mysqli_fetch_assoc($res)) {
-          $asignado_nombre = $fila['nombre_completo'];
+            $asignado_nombre = $fila['nombre_completo'];
         }
-        }
-
-        echo "<tr id='tarea-{$tarea['id']}' data-asignado-id='{$asignado_id}'data-title='" . htmlspecialchars($tarea['titulo'], ENT_QUOTES) . "'>
-        <td>" . htmlspecialchars($tarea['titulo']) . "</span></td>
-        <td>" . htmlspecialchars($tarea['descripcion']) . "</td>
-        <td>" . htmlspecialchars($asignado_nombre) . "</td>
-        <td>" . htmlspecialchars($tarea['estado']) . "</td>
-        <td>" . htmlspecialchars($tarea['prioridad']) . "</td>
-        <td>" . $tarea['fecha_asignacion'] . "</td>
-        <td>
-          <button onclick='editarTarea({$tarea['id']})' class='btn btn-primary'><span data-feather=\"edit\" class=\"align-text-bottom\"></span></button>
-          <button onclick='eliminarTarea({$tarea['id']})' class='btn btn-danger'><span data-feather=\"trash\" class=\"align-text-bottom\"></span></button>
-          <button onclick='verNotas({$tarea['id']})' class='btn btn-info'><span data-feather=\"file-text\" class=\"align-text-bottom\"></span></button>
-
-        </td>
-      </tr>";
-
-      }
-      ?>
-    </tbody>
-  </table>
+    }
+?>
+<tr id="tarea-<?= $tarea['id'] ?>" 
+    data-asignado-id="<?= $asignado_id ?>" 
+    data-title="<?= htmlspecialchars($tarea['titulo'], ENT_QUOTES) ?>">
+    
+    <td><?= htmlspecialchars($tarea['titulo']) ?></td>
+    <td><?= htmlspecialchars($tarea['descripcion']) ?></td>
+    <td><?= htmlspecialchars($asignado_nombre) ?></td>
+    <td><?= htmlspecialchars($tarea['estado']) ?></td>
+    <td><?= htmlspecialchars($tarea['prioridad']) ?></td>
+    <td><?= $tarea['fecha_asignacion'] ?></td>
+    <td>
+        <?php if ($_SESSION['rol'] === 'admin'): ?>
+            <button onclick="editarTarea(<?= $tarea['id'] ?>)" class="btn btn-primary">
+                <span data-feather="edit" class="align-text-bottom"></span>
+            </button>
+            <button onclick="eliminarTarea(<?= $tarea['id'] ?>)" class="btn btn-danger">
+                <span data-feather="trash" class="align-text-bottom"></span>
+            </button>
+        <?php endif; ?>
+        <button onclick="verNotas(<?= $tarea['id'] ?>)" class="btn btn-info">
+            <span data-feather="file-text" class="align-text-bottom"></span>
+        </button>
+    </td>
+</tr>
+<?php
+}
+?>
 </div>
-
-
-
-
-<!-- Modal para agregar Tareas-->
-<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="add
-ModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addModalLabel">Agregar Tarea</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form method="POST">
-        <div class="modal-body">
-          <input type="hidden" name="accion" value="agregarTarea">
-          <div class="mb-3">
-            <label for="titulo" class="form-label">Titulo</label>
-            <input type="text" class="form-control" id="titulo" name="titulo" required>
-          </div>
-          <div class="mb-3">
-            <label for="descripcion" class="form-label">Descripcion</label>
-            <textarea class="form-control" id="descripcion" name="descripcion"></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="asignado_a" class="form-label">Asignado a</label>
-            <select class="form-select" id="asignado_a" name="asignado_a">
-              <?php
-              $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario");
-              while ($usuario = mysqli_fetch_assoc($usuarios)) {
-                echo "<option value='{$usuario['id']}'>{$usuario['nombre_completo']}</option>";
-              }
-              ?>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="estado" class="form-label">Estado</label>
-            <select class="form-select" id="estado" name="estado">
-              <option value="Pendiente">Pendiente</option>
-              <option value="En_progreso">En progreso</option>
-              <option value="Completado">Completado</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="prioridad" class="form-label">Prioridad</label>
-            <select class="form-select" id="prioridad" name="prioridad">
-              <option value="Baja">Baja</option>
-              <option value="Media">Media</option>
-              <option value="Alta">Alta</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="fecha_asignacion" class="form-label">Fecha Limite</label>
-            <input type="datetime-local" class="form-control" id="fecha_asignacion" name="fecha_asignacion" required>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="submit" class="btn btn-primary">Guardar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-  <!-- Modal de editar Tareas -->
-  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="editModalLabel">Editar Tarea #<span id="spanNumTarea"></span></h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form method="post" action="">  
-          <input type="hidden" name="id" id="id">
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="tituloEdit" class="form-label">Titulo</label>
-              <input type="text" class="form-control" id="tituloEdit" name="titulo" required placeholder="Titulo de la tarea">
-            </div>
-            <div class="mb-3">
-              <label for="descripcionEdit" class="form-label">Descripcion</label>
-              <input type="text" class="form-control" id="descripcionEdit" name="descripcion" required placeholder="Descripcion de la tarea">
-            </div>
-            <div class="mb-3">
-              <label for="asignadoAEdit" class="form-label">Asignado A</label>
-                <select class="form-select" id="asignadoAEdit" name="asignado_a">
-                  <?php
-                  $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario");
-                  while ($usuario = mysqli_fetch_assoc($usuarios)) {
-                    echo "<option value='{$usuario['id']}'>{$usuario['nombre_completo']}</option>";
-                  }
-                  ?>  
-              </Select>
-            </div>
-            <div class="mb-3">
-              <label for="estadoEdit" class="form-label">Estado</label>
-              <Select class="form-select" id="estadoEdit" name="estado">
-                <option value="pendiente">Pendiente</option>
-                <option value="en_progreso">En progreso</option>
-                <option value="completado">Completado</option>
-              </Select>
-            </div>
-
-            <div class="mb-3">
-              <label for="prioridadEdit" class="form-label">Prioridad</label>
-              <Select class="form-select" id="prioridadEdit" name="prioridad" required placeholder="Prioridad de la tarea">
-                <option value="baja">Baja</option>
-                <option value="media">Media</option>
-                <option value="alta">Alta</option>
-              </Select>
-            </div>
-            <div class="mb-3">
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="fechaAsignacionEdit" class="form-label">Fecha limite</label>
-              <input type="datetime-local" class="form-control" id="fechaAsignacionEdit" name="fecha_asignacion" required placeholder="Fecha limite de la tarea">
-            </div>
-            <div class="text-center">
-              <button type="submit" name="accion" value="editarTarea" class="btn btn-success">Guardar</button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  <!-- Modal para Notas-->
-<div class="modal fade" id="notasModal" tabindex="-1" aria-labelledby="notasModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="notasModalLabel">Notas de la tarea: <span id="tituloTareaNota"></span></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <div id="listaNotas"></div>
-        <hr>
-        <form id="formNota">
-          <input type="hidden" name="accion" value="agregarNota" id="accionNota">
-          <input type="hidden" name="tarea_id" id="tarea_id_nota">
-          <input type="hidden" name="id" id="idNota">
-          <div class="mb-3">
-            <label for="contenidoNota" class="form-label">Contenido</label>
-            <textarea class="form-control" id="contenidoNota" name="contenido" rows="4" required></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary" id="btnGuardarNota">Guardar Nota</button>
-          <button type="button" class="btn btn-secondary" onclick="limpiarFormularioNota()">Limpiar</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-
   <script>
     // Funciones para manejar las acciones de las tareas
   function editarTarea(id_tarea) {

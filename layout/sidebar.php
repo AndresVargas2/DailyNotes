@@ -5,31 +5,17 @@ if (!isset($_SESSION)) {
 $rol = $_SESSION['rol'] ?? null;
 ?>
 
+<?php if ($rol === 'admin'): ?>
 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
     <div class="position-sticky pt-3 sidebar-sticky">
         <ul class="nav flex-column">
             <li class="nav-item">
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-            <span>Tareas</span>
-            </h6>
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="index.php"?'active':''?>" aria-current="page" href="./">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+                    <span>Tareas</span>
+                </h6>
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="index.php"?'active':''?>" href="./">
                     <span data-feather="bar-chart" class="align-text-bottom"></span>
                     Hoy
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="reservar.php"?'active':''?>" href="reservar.php">
-                    <span data-feather="arrow-up-circle" class="align-text-bottom"></span>
-                    Reservar
-                </a>
-            </li>
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-            <span>Proyectos</span>
-            </h6>
-            <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="recibir.php"?'active':''?>" href="recibir.php">
-                    <span data-feather="arrow-down-circle" class="align-text-bottom"></span>
-                    Recibir
                 </a>
             </li>
             <li class="nav-item">
@@ -37,11 +23,6 @@ $rol = $_SESSION['rol'] ?? null;
                     <span data-feather="check-square" class="align-text-bottom"></span>
                     Tareas
                 </a>       
-            <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="clientes.php"?'active':''?>" href="clientes.php">
-                    <span data-feather="users" class="align-text-bottom"></span>
-                    Clientes
-                </a>
             </li>
         </ul>
 
@@ -54,8 +35,44 @@ $rol = $_SESSION['rol'] ?? null;
                     <span data-feather="user-check" class="align-text-bottom"></span>
                     Usuarios del Sistema
                 </a>
+                <li class="nav-item">
+                <a class="nav-link" href="../logout.php">
+                    <span data-feather="log-out" class="align-text-bottom"></span>
+                    Cerrar Sesión
+                </a>
+            </li>   
             </li>
         </ul>
+    </div>
+</nav>
+
+<?php elseif ($rol === 'empleado'): ?>
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+    <div class="position-sticky pt-3 sidebar-sticky">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+                    <span>Tareas</span>
+                </h6>
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="index.php"?'active':''?>" href="./">
+                    <span data-feather="bar-chart" class="align-text-bottom"></span>
+                    Hoy
+                </a>
+                            <li class="nav-item">
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="tareasEmpleado.php"?'active':''?>" href="tareasEmpleado.php">
+                    <span data-feather="check-square" class="align-text-bottom"></span>
+                    Tareas
+                </a>       
+            </li>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="tareas.php"?'active':''?>" href="tareas.php">
+                    <span data-feather="check-square" class="align-text-bottom"></span>
+                    Tareas
+                </a>       
+            </li>
+        </ul>
+
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
             <span>Salir del Sistema</span>
         </h6>
@@ -65,7 +82,10 @@ $rol = $_SESSION['rol'] ?? null;
                     <span data-feather="log-out" class="align-text-bottom"></span>
                     Cerrar Sesión
                 </a>
-            </li>
+            </li>   
         </ul>
     </div>
 </nav>
+<?php endif; ?>
+
+
