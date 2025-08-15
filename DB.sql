@@ -64,3 +64,10 @@ CREATE TABLE notificaciones (
     fue_leido BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (beneficiario) REFERENCES usuario(id)
 );
+CREATE TABLE usuario_etiqueta (
+    usuario_id INT NOT NULL,
+    etiqueta_id INT NOT NULL,
+    PRIMARY KEY (usuario_id, etiqueta_id),
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (etiqueta_id) REFERENCES etiquetas(id) ON DELETE CASCADE
+);

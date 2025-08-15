@@ -1,6 +1,7 @@
 <?php
 require '../system/session.php';
 require '../layout/header.php';
+
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: ../login.php");
     exit();
@@ -13,6 +14,7 @@ if ($_SESSION['rol'] === 'empleado') {
     header("Location: ../index.php");
     exit();
 }
+$etiqueta_id = isset($_GET['etiqueta_id']) ? (int)$_GET['etiqueta_id'] : 0;
 
 if (isset($_POST['accion'])) {
   switch ($_POST['accion']) {
