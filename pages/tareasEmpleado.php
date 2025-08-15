@@ -6,12 +6,46 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
-if ($_SESSION['rol'] === 'admin') {
-  
-    echo "<h1>Bienvenido Admin</h1>";
-} else {
-    echo "<h1>Bienvenido Empleado</h1>";
-}
+if ($_SESSION['rol'] === 'empleado') {
+    $empleado_id = $_SESSION['usuario_id'];
+    $empleado_nombre = $_SESSION['nombre'] ?? 'Empleado';
+    echo "<h2>Tareas asignadas a: $empleado_nombre</h2>";
+    // Aquí podrías agregar lógica para mostrar las tareas asignadas al empleado
+    // Por ejemplo, podrías hacer una consulta a la base de datos para obtener las tareas asignadas
+    $tareas = mysqli_query($conn, "SELECT * FROM tareas WHERE asignado_a = $empleado_id AND activo != 0 ORDER BY fecha_asignacion ASC");
+    if (mysqli_num_rows($tareas) == 0) {
+        echo "<p>No tienes tareas asignadas actualmente.</p>";
+    } else {
+        // Aquí podrías mostrar las tareas en una tabla o lista
+        echo "<table class='table table-striped'>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Descripción</th>
+                        <th>Estado</th>
+                        <th>Prioridad</th>
+                        <th>Fecha de Asignación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>";
+        while ($tarea = mysqli_fetch_assoc($tareas)) {
+            echo "<tr>
+                    <td>" . htmlspecialchars($tarea['titulo']) . "</td>
+                    <td>" . htmlspecialchars($tarea['descripcion']) . "</td>
+                    <td>" . htmlspecialchars($tarea['estado']) . "</td>
+                    <td>" . htmlspecialchars($tarea['prioridad']) . "</td>
+                    <td>" . $tarea['fecha_asignacion'] . "</td>
+                    <td>
+                        <button onclick='verNotas({$tarea['id']})' class='btn btn-info'><span data-feather=\"file-text\" class=\"align-text-bottom\"></span></button>
+                        <button onclick='TareaCompletada({$tarea['id']})' class='btn btn-success' title='Marcar como completada'><span data-feather=\"check-circle\" class=\"align-text-bottom\"></span></button>
+                    </tr>";
+        } 
+        echo "</tbody></table>";
+      }
+    }
+        echo "<p>No tienes mas tareas asignadas actualmente.</p>";
+
 $mensaje = [];
 if (isset($_POST['accion'])) {
   switch ($_POST['accion']) {
@@ -47,53 +81,19 @@ if (isset($_POST['accion'])) {
           $mensaje = ['mensaje' => 'Error al eliminar nota: ' . mysqli_error($conn), 'tipo' => 'danger'];
       }
       break;
-  } 
+      case 'completarTarea':
+        $tarea_id = mysqli_real_escape_string($conn, $_POST['tarea_id']);
+        $sql = "UPDATE tareas SET estado='completado' WHERE id='$tarea_id'";
+        if (mysqli_query($conn, $sql)) {
+            $mensaje = ['mensaje' => 'Tarea marcada como completada.', 'tipo' => 'success'];
+        } else {
+            $mensaje = ['mensaje' => 'Error al completar tarea: ' . mysqli_error($conn), 'tipo' => 'danger'];
+        }
+        break;
+}
 }
 ?>
 
-
-
-<?php if (!empty($mensaje)): ?>
-  <div class="alert alert-<?= $mensaje['tipo'] ?> alert-dismissible fade show" role="alert">
-    <strong><?= $mensaje['mensaje'] ?></strong>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-<?php endif; ?>
-       <?php
-      $tareas = mysqli_query($conn, "SELECT * FROM tareas WHERE activo !=0 ORDER BY fecha_asignacion ASC");
-      foreach ($tareas as $tarea) {
-        $estado_color = $tarea['activo'] == 1 ? 'success' : 'danger';
-        $estado_nombre = $tarea['activo'] == 1  ? '<span data-feather="check-circle" class="align-text-bottom"></span>'
-          : '<span data-feather="clock" class="align-text-bottom"></span>';
-        $asignado_id = $tarea['asignado_a'] ?? 0;
-        $asignado_nombre = 'No asignado';
-        if ($asignado_id) {
-        $res = mysqli_query($conn, "SELECT nombre_completo FROM usuario WHERE id = $asignado_id");
-        if ($fila = mysqli_fetch_assoc($res)) {
-          $asignado_nombre = $fila['nombre_completo'];
-        }
-        }
-
-        echo "<tr id='tarea-{$tarea['id']}' data-asignado-id='{$asignado_id}'data-title='" . htmlspecialchars($tarea['titulo'], ENT_QUOTES) . "'>
-        <td>" . htmlspecialchars($tarea['titulo']) . "</span></td>
-        <td>" . htmlspecialchars($tarea['descripcion']) . "</td>
-        <td>" . htmlspecialchars($asignado_nombre) . "</td>
-        <td>" . htmlspecialchars($tarea['estado']) . "</td>
-        <td>" . htmlspecialchars($tarea['prioridad']) . "</td>
-        <td>" . $tarea['fecha_asignacion'] . "</td>
-        <td>
-          <button onclick='editarTarea({$tarea['id']})' class='btn btn-primary'><span data-feather=\"edit\" class=\"align-text-bottom\"></span></button>
-          <button onclick='eliminarTarea({$tarea['id']})' class='btn btn-danger'><span data-feather=\"trash\" class=\"align-text-bottom\"></span></button>
-          <button onclick='verNotas({$tarea['id']})' class='btn btn-info'><span data-feather=\"file-text\" class=\"align-text-bottom\"></span></button>
-
-        </td>
-      </tr>";
-
-      }
-      ?>
-    </tbody>
-  </table>
-</div>
   <!-- Modal para Notas-->
 <div class="modal fade" id="notasModal" tabindex="-1" aria-labelledby="notasModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -123,53 +123,7 @@ if (isset($_POST['accion'])) {
 
 
   <script>
-    // Funciones para manejar las acciones de las tareas
-  function editarTarea(id_tarea) {
-  const tareaRow = document.getElementById('tarea-' + id_tarea);
-  if (tareaRow) {
-    const titulo = tareaRow.cells[0].innerText;
-    const descripcion = tareaRow.cells[1].innerText;
-    const asignadoId = tareaRow.getAttribute('data-asignado-id') || '';
-    const estado = tareaRow.cells[3].innerText.trim();
-    const prioridad = tareaRow.cells[4].innerText;
-    const fechaAsignacion = tareaRow.cells[5].innerText;
-
-    document.getElementById('id').value = id_tarea;
-    document.getElementById('tituloEdit').value = titulo;
-    document.getElementById('descripcionEdit').value = descripcion;
-    document.getElementById('asignadoAEdit').value = asignadoId;
-    document.getElementById('estadoEdit').value = estado;
-    document.getElementById('prioridadEdit').value = prioridad;
-    document.getElementById('fechaAsignacionEdit').value = fechaAsignacion.replace(' ', 'T');
-    document.getElementById('spanNumTarea').innerText = id_tarea;
-
-    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-    editModal.show();
-  } else {
-    alert("Tarea no encontrada.");
-  }
-}
-
-
-    function eliminarTarea(id_tarea) {
-      if (confirm("¿Estás seguro de eliminar la tarea #" + id_tarea + "?")) {
-        const form = document.createElement('form');
-        form.method = 'post';
-        form.action = '';
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'id';
-        input.value = id_tarea;
-        form.appendChild(input);
-        const accionInput = document.createElement('input');
-        accionInput.type = 'hidden';
-        accionInput.name = 'accion';
-        accionInput.value = 'eliminarTarea';
-        form.appendChild(accionInput);
-        document.body.appendChild(form);
-        form.submit();
-      }
-    }
+  
     // Función para ver notas de una tarea
 document.addEventListener('DOMContentLoaded', function(){
 
@@ -267,6 +221,21 @@ document.addEventListener('DOMContentLoaded', function(){
   // limpiar backdrops residuales al cargar por si quedó algo
   document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
   document.body.classList.remove('modal-open');
+
+
+  window.TareaCompletada = function(tareaId) {
+    if (!confirm('¿Marcar esta tarea como completada?')) return;
+    const data = new FormData();
+    data.append('accion', 'completarTarea');
+    data.append('tarea_id', tareaId);
+    fetch('', { method: 'POST', body: data })
+      .then(() => {
+        location.reload();
+      })
+      .catch(err => console.error('Error al completar tarea:', err));
+  };
+
+
 
 }); // DOMContentLoaded
   </script>

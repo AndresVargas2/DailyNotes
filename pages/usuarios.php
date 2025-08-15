@@ -2,6 +2,13 @@
 require '../system/session.php';
 require '../layout/header.php';
 $mensaje = [];
+if ($_SESSION['rol'] === 'empleado') {
+    header("Location: tareasEmpleado.php");
+    exit();
+} elseif ($_SESSION['rol'] !== 'admin') {
+    header("Location: ../index.php");
+    exit();
+}
 if (isset($_POST['accion'])) {
     switch ($_POST['accion']) {
         case 'agregar':

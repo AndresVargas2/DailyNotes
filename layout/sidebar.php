@@ -24,6 +24,12 @@ $rol = $_SESSION['rol'] ?? null;
                     Tareas
                 </a>       
             </li>
+            <li class="nav-item">
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="etiquetas.php"?'active':''?>" href="etiquetas.php">
+                    <span data-feather="folder" class="align-text-bottom"></span>
+                    Proyectos
+                </a>       
+            </li>
         </ul>
 
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
@@ -61,15 +67,9 @@ $rol = $_SESSION['rol'] ?? null;
                             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="tareasEmpleado.php"?'active':''?>" href="tareasEmpleado.php">
                     <span data-feather="check-square" class="align-text-bottom"></span>
-                    Tareas
+                    Tareas Personales
                 </a>       
             </li>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="tareas.php"?'active':''?>" href="tareas.php">
-                    <span data-feather="check-square" class="align-text-bottom"></span>
-                    Tareas
-                </a>       
             </li>
         </ul>
 
