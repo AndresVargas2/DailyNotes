@@ -1,3 +1,4 @@
+
 <?php
 require '../system/session.php';
 require '../layout/header.php';
@@ -27,6 +28,7 @@ if (isset($_POST['accion'])) {
         case 'editarEtiqueta':
             $id = (int)$_POST['id'];
             $nombre = mysqli_real_escape_string($conn, $_POST['nombre']);
+            
             $sql = "UPDATE etiquetas SET nombre='$nombre' WHERE id='$id'";
             $mensaje = mysqli_query($conn, $sql)
                 ? ['mensaje' => 'Etiqueta actualizada', 'tipo' => 'success']
@@ -42,13 +44,31 @@ if (isset($_POST['accion'])) {
             break;
 
         case 'asignarUsuario':
-            $usuario_id = (int)$_POST['usuario_id'];
+            //asignar usuarios con estado sea == 1
             $etiqueta_id = (int)$_POST['etiqueta_id'];
-            $sql = "INSERT IGNORE INTO usuario_etiqueta (usuario_id, etiqueta_id) VALUES ($usuario_id, $etiqueta_id)";
-            $mensaje = mysqli_query($conn, $sql)
-                ? ['mensaje' => 'Usuario asignado a etiqueta', 'tipo' => 'success']
-                : ['mensaje' => 'Error: '.mysqli_error($conn), 'tipo' => 'danger'];
-            break;
+            $usuario_id = (int)$_POST['usuario_id'];
+
+            // Verificar que el usuario esté activo
+            $res = mysqli_query($conn, "SELECT estado FROM usuario WHERE id = $usuario_id");
+            if ($row = mysqli_fetch_assoc($res)) {
+                if ($row['estado'] == 1) {
+                    // Verificar si ya está asignado
+                    $existe = mysqli_query($conn, "SELECT 1 FROM usuario_etiqueta WHERE usuario_id = $usuario_id AND etiqueta_id = $etiqueta_id");
+                    if (!mysqli_fetch_assoc($existe)) {
+                        $sql = "INSERT INTO usuario_etiqueta (usuario_id, etiqueta_id) VALUES ($usuario_id, $etiqueta_id)";
+                        $mensaje = mysqli_query($conn, $sql)
+                            ? ['mensaje' => 'Usuario asignado correctamente', 'tipo' => 'success']
+                            : ['mensaje' => 'Error: '.mysqli_error($conn), 'tipo' => 'danger'];
+                    } else {
+                        $mensaje = ['mensaje' => 'El usuario ya está asignado a este proyecto', 'tipo' => 'warning'];
+                    }
+                } else {
+                    $mensaje = ['mensaje' => 'Solo se pueden asignar usuarios activos', 'tipo' => 'danger'];
+                }
+            } else {
+                $mensaje = ['mensaje' => 'Usuario no encontrado', 'tipo' => 'danger'];
+            }
+
     }
 }
 
@@ -85,8 +105,10 @@ $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario ORDER B
             $asignados = [];
             while ($u = mysqli_fetch_assoc($res)) $asignados[] = $u['nombre_completo'];
 
-            // Contar tareas
-            $resT = mysqli_query($conn, "SELECT COUNT(*) as total FROM tarea_etiqueta WHERE etiqueta_id={$et['id']}");
+            // Contar las tareas que sea activo == 1
+            $resT = mysqli_query($conn, "SELECT COUNT(*) as total FROM tarea_etiqueta te
+                                         JOIN tareas t ON te.tarea_id = t.id
+                                         WHERE te.etiqueta_id = {$et['id']} AND t.activo = 1");
             $totalTareas = mysqli_fetch_assoc($resT)['total'];
         ?>
             <tr>
@@ -168,12 +190,12 @@ $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario ORDER B
                 <input type="hidden" name="accion" value="asignarUsuario">
                 <input type="hidden" name="etiqueta_id" id="asignarEtiquetaId">
                 <div class="modal-header">
-                    <h5 class="modal-title">Asignar Usuario</h5>
+                    <h5 class="modal-title">Asignar Personal</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label>Usuario</label>
+                        <label>Asignar</label>
                         <select name="usuario_id" class="form-select" required>
                             <?php mysqli_data_seek($usuarios,0); // reset ?>
                             <?php while ($u = mysqli_fetch_assoc($usuarios)): ?>

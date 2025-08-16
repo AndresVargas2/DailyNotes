@@ -7,6 +7,9 @@
     <title>DailyNotes</title>
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/dashboard.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <?= basename($_SERVER['PHP_SELF'])=="reservar.php"?'<link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.css"/>':''?>
 </head>
 

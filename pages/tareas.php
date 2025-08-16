@@ -25,9 +25,21 @@ if (isset($_POST['accion'])) {
       $estado = mysqli_real_escape_string($conn, $_POST['estado']);
       $prioridad = mysqli_real_escape_string($conn, $_POST['prioridad']);
       $fecha_asignacion = mysqli_real_escape_string($conn, $_POST['fecha_asignacion']);
+
+      // 1) Insertamos en tareas
       $sql = "INSERT INTO tareas (titulo, descripcion, asignado_a, estado, prioridad, fecha_asignacion) 
               VALUES ('$titulo', '$descripcion', '$asignado_a', '$estado', '$prioridad', '$fecha_asignacion')";
+      
       if (mysqli_query($conn, $sql)) {
+        // 2) Obtenemos el ID de la tarea recién insertada
+        $tarea_id = mysqli_insert_id($conn);
+
+        // 3) Si venimos desde una etiqueta (por URL), la vinculamos
+        if (isset($_GET['etiqueta_id']) && (int)$_GET['etiqueta_id'] > 0) {
+          $etiqueta_id = (int)$_GET['etiqueta_id'];
+          mysqli_query($conn, "INSERT INTO tarea_etiqueta (tarea_id, etiqueta_id) VALUES ($tarea_id, $etiqueta_id)");
+        }
+
         $mensaje = ['mensaje' => "Tarea agregada correctamente.", 'tipo' => 'success'];
       } else {
         $mensaje = ['mensaje' => "Error al agregar la tarea: " . mysqli_error($conn), 'tipo' => 'danger'];
@@ -106,7 +118,17 @@ if (isset($_POST['accion'])) {
 }
 ?>
 <div class="container mt-4">
-  <h2>Tareas</h2>
+  <h2>
+    Tareas
+    <?php
+      if ($etiqueta_id > 0) {
+        $res = mysqli_query($conn, "SELECT nombre FROM etiquetas WHERE id = $etiqueta_id");
+        if ($row = mysqli_fetch_assoc($res)) {
+          echo ' - ' . htmlspecialchars($row['nombre']);
+        }
+      }
+    ?>
+  </h2>
   <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addModal">Agregar Tarea</button>
   <table class="table table-striped">
     <thead>
@@ -131,7 +153,19 @@ if (isset($_POST['accion'])) {
   </div>
 <?php endif; ?>
        <?php
-      $tareas = mysqli_query($conn, "SELECT * FROM tareas WHERE activo !=0 ORDER BY fecha_asignacion ASC");
+    if ($etiqueta_id > 0) {
+    // Solo tareas de esta etiqueta
+    $sql = "SELECT t.* 
+            FROM tareas t
+            JOIN tarea_etiqueta te ON t.id = te.tarea_id
+            WHERE t.activo !=0 AND te.etiqueta_id = $etiqueta_id
+            ORDER BY t.fecha_asignacion ASC";
+} else {
+    // Todas las tareas
+    $sql = "SELECT * FROM tareas WHERE activo !=0 ORDER BY fecha_asignacion ASC";
+}
+
+$tareas = mysqli_query($conn, $sql);
       foreach ($tareas as $tarea) {
         $estado_color = $tarea['activo'] == 1 ? 'success' : 'danger';
         $estado_nombre = $tarea['activo'] == 1  ? '<span data-feather="check-circle" class="align-text-bottom"></span>'
