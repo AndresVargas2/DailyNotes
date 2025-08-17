@@ -15,7 +15,7 @@ if ($_SESSION['rol'] === 'empleado') {
     echo "<h2>Tareas asignadas a: $empleado_nombre</h2>";
     // Aquí podrías agregar lógica para mostrar las tareas asignadas al empleado
     // Por ejemplo, podrías hacer una consulta a la base de datos para obtener las tareas asignadas
-    $tareas = mysqli_query($conn, "SELECT * FROM tareas WHERE asignado_a = $empleado_id AND activo != 0 ORDER BY fecha_asignacion ASC");
+    $tareas = mysqli_query($conn, "SELECT * FROM tareas WHERE asignado_a = $empleado_id AND activo != 0 AND estado  = 'pendiente' OR 'en_progreso' ORDER BY fecha_asignacion ASC");
     if (mysqli_num_rows($tareas) == 0) {
         echo "<p>No tienes tareas asignadas actualmente.</p>";
     } else {
@@ -23,6 +23,7 @@ if ($_SESSION['rol'] === 'empleado') {
         echo "<table class='table table-striped'>
                 <thead>
                     <tr>
+                        <th>Proyecto</th> 
                         <th>Título</th>
                         <th>Descripción</th>
                         <th>Estado</th>
@@ -33,7 +34,13 @@ if ($_SESSION['rol'] === 'empleado') {
                 </thead>
                 <tbody>";
         while ($tarea = mysqli_fetch_assoc($tareas)) {
+          $etiquetaNombre = "Tarea temporal";
+          $resEtiqueta = mysqli_query($conn, "SELECT e.nombre FROM tarea_etiqueta te JOIN etiquetas e ON te.etiqueta_id = e.id WHERE te.tarea_id = {$tarea['id']} LIMIT 1");
+          if ($rowEtiqueta = mysqli_fetch_assoc($resEtiqueta)) {
+            $etiquetaNombre = htmlspecialchars($rowEtiqueta['nombre']);
+          }
             echo "<tr>
+                    <td>{$etiquetaNombre}</td>
                     <td>" . htmlspecialchars($tarea['titulo']) . "</td>
                     <td>" . htmlspecialchars($tarea['descripcion']) . "</td>
                     <td>" . htmlspecialchars($tarea['estado']) . "</td>
@@ -47,8 +54,6 @@ if ($_SESSION['rol'] === 'empleado') {
         echo "</tbody></table>";
       }
     }
-        echo "<p>No tienes mas tareas asignadas actualmente.</p>";
-
 $mensaje = [];
 if (isset($_POST['accion'])) {
   switch ($_POST['accion']) {

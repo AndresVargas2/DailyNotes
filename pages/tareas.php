@@ -133,6 +133,7 @@ if (isset($_POST['accion'])) {
   <table class="table table-striped">
     <thead>
       <tr>
+        <th>Etiqueta</th> 
         <th>Titulo</th>
         <th>Descripcion</th>
         <th>Asignado a</th>
@@ -166,35 +167,45 @@ if (isset($_POST['accion'])) {
 }
 
 $tareas = mysqli_query($conn, $sql);
-      foreach ($tareas as $tarea) {
-        $estado_color = $tarea['activo'] == 1 ? 'success' : 'danger';
-        $estado_nombre = $tarea['activo'] == 1  ? '<span data-feather="check-circle" class="align-text-bottom"></span>'
-          : '<span data-feather="clock" class="align-text-bottom"></span>';
-        $asignado_id = $tarea['asignado_a'] ?? 0;
-        $asignado_nombre = 'No asignado';
-        if ($asignado_id) {
-        $res = mysqli_query($conn, "SELECT nombre_completo FROM usuario WHERE id = $asignado_id");
-        if ($fila = mysqli_fetch_assoc($res)) {
-          $asignado_nombre = $fila['nombre_completo'];
-        }
-        }
+foreach ($tareas as $tarea) {
+  $estado_color = $tarea['activo'] == 1 ? 'success' : 'danger';
+  $estado_nombre = $tarea['activo'] == 1  
+    ? '<span data-feather="check-circle" class="align-text-bottom"></span>'
+    : '<span data-feather="clock" class="align-text-bottom"></span>';
 
-        echo "<tr id='tarea-{$tarea['id']}' data-asignado-id='{$asignado_id}'data-title='" . htmlspecialchars($tarea['titulo'], ENT_QUOTES) . "'>
-        <td>" . htmlspecialchars($tarea['titulo']) . "</span></td>
-        <td>" . htmlspecialchars($tarea['descripcion']) . "</td>
-        <td>" . htmlspecialchars($asignado_nombre) . "</td>
-        <td>" . htmlspecialchars($tarea['estado']) . "</td>
-        <td>" . htmlspecialchars($tarea['prioridad']) . "</td>
-        <td>" . $tarea['fecha_asignacion'] . "</td>
-        <td>
-          <button onclick='editarTarea({$tarea['id']})' class='btn btn-primary'><span data-feather=\"edit\" class=\"align-text-bottom\"></span></button>
-          <button onclick='eliminarTarea({$tarea['id']})' class='btn btn-danger'><span data-feather=\"trash\" class=\"align-text-bottom\"></span></button>
-          <button onclick='verNotas({$tarea['id']})' class='btn btn-info'><span data-feather=\"file-text\" class=\"align-text-bottom\"></span></button>
+  // Buscar asignado
+  $asignado_id = $tarea['asignado_a'] ?? 0;
+  $asignado_nombre = 'No asignado';
+  if ($asignado_id) {
+    $res = mysqli_query($conn, "SELECT nombre_completo FROM usuario WHERE id = $asignado_id");
+    if ($fila = mysqli_fetch_assoc($res)) {
+      $asignado_nombre = $fila['nombre_completo'];
+    }
+  }
 
-        </td>
-      </tr>";
+  // Buscar etiqueta
+  $etiquetaNombre = "Tarea temporal";
+  $resEtiqueta = mysqli_query($conn, "SELECT e.nombre FROM tarea_etiqueta te JOIN etiquetas e ON te.etiqueta_id = e.id WHERE te.tarea_id = {$tarea['id']} LIMIT 1");
+  if ($rowEtiqueta = mysqli_fetch_assoc($resEtiqueta)) {
+    $etiquetaNombre = htmlspecialchars($rowEtiqueta['nombre']);
+  }
 
-      }
+  // Ahora sí imprimimos
+  echo "<tr id='tarea-{$tarea['id']}' data-asignado-id='{$asignado_id}' data-title='" . htmlspecialchars($tarea['titulo'], ENT_QUOTES) . "'>
+    <td>{$etiquetaNombre}</td>
+    <td>" . htmlspecialchars($tarea['titulo']) . "</td>
+    <td>" . htmlspecialchars($tarea['descripcion']) . "</td>
+    <td>" . htmlspecialchars($asignado_nombre) . "</td>
+    <td>" . htmlspecialchars($tarea['estado']) . "</td>
+    <td>" . htmlspecialchars($tarea['prioridad']) . "</td>
+    <td>" . $tarea['fecha_asignacion'] . "</td>
+    <td>
+      <button onclick='editarTarea({$tarea['id']})' class='btn btn-primary'><span data-feather=\"edit\"></span></button>
+      <button onclick='eliminarTarea({$tarea['id']})' class='btn btn-danger'><span data-feather=\"trash\"></span></button>
+      <button onclick='verNotas({$tarea['id']})' class='btn btn-info'><span data-feather=\"file-text\"></span></button>
+    </td>
+  </tr>";
+}
       ?>
     </tbody>
   </table>
