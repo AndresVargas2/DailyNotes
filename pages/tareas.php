@@ -129,21 +129,25 @@ if (isset($_POST['accion'])) {
       }
     ?>
   </h2>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+
   <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addModal">Agregar Tarea</button>
-  <table class="table table-striped">
+  <table id= "tablaTareas"class="display table table-striped">
     <thead>
       <tr>
-        <th>Etiqueta</th> 
         <th>Titulo</th>
         <th>Descripcion</th>
         <th>Asignado a</th>
         <th>Estado</th>
         <th>Prioridad</th>
         <th>Fecha Asignacion</th>
+        <th>Etiqueta</th> 
         <th>Acciones</th>
+        
       </tr>
     </thead>
     <tbody>
+      
 
 
 
@@ -192,13 +196,13 @@ foreach ($tareas as $tarea) {
 
   // Ahora sí imprimimos
   echo "<tr id='tarea-{$tarea['id']}' data-asignado-id='{$asignado_id}' data-title='" . htmlspecialchars($tarea['titulo'], ENT_QUOTES) . "'>
-    <td>{$etiquetaNombre}</td>
     <td>" . htmlspecialchars($tarea['titulo']) . "</td>
     <td>" . htmlspecialchars($tarea['descripcion']) . "</td>
     <td>" . htmlspecialchars($asignado_nombre) . "</td>
     <td>" . htmlspecialchars($tarea['estado']) . "</td>
     <td>" . htmlspecialchars($tarea['prioridad']) . "</td>
     <td>" . $tarea['fecha_asignacion'] . "</td>
+    <td>{$etiquetaNombre}</td>
     <td>
       <button onclick='editarTarea({$tarea['id']})' class='btn btn-primary'><span data-feather=\"edit\"></span></button>
       <button onclick='eliminarTarea({$tarea['id']})' class='btn btn-danger'><span data-feather=\"trash\"></span></button>
@@ -207,9 +211,13 @@ foreach ($tareas as $tarea) {
   </tr>";
 }
       ?>
+      
+
     </tbody>
   </table>
 </div>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
 <!-- Modal para agregar Tareas-->
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="add
@@ -361,8 +369,17 @@ ModalLabel" aria-hidden="true">
   </div>
 </div>
 
-
-  <script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script> 
+<script>
+  $(document).ready(function() {
+    $('#tablaTareas').DataTable({
+        "order": [[0, "asc"]], // por defecto ordena por la primera columna (fecha)
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+        }
+    });
+});
     // Funciones para manejar las acciones de las tareas
   function editarTarea(id_tarea) {
   const tareaRow = document.getElementById('tarea-' + id_tarea);
@@ -508,7 +525,8 @@ document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
   document.body.classList.remove('modal-open');
 
-}); // DOMContentLoaded
+});
+ // DOMContentLoaded
   </script>
   <?php
   require '../layout/footer.php';
