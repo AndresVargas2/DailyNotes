@@ -77,7 +77,7 @@ if (isset($_POST['usuario']) && isset($_POST['contra']) && !empty($_POST['usuari
       }
       ?>
       <button class="w-100 btn btn-lg btn-primary" type="submit">Ingresar</button>
-      <p class="mt-5 mb-3 text-muted">Biblioteca UISIL &copy; <?= date('Y') ?></p>
+      <p class="mt-5 mb-3 text-muted"> DailyNotes &copy; <?= date('Y') ?></p>
     </form>
   </main>
 

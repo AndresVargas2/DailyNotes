@@ -224,7 +224,8 @@ ModalLabel" aria-hidden="true">
             <label for="asignado_a" class="form-label">Asignado a</label>
             <select class="form-select" id="asignado_a" name="asignado_a">
               <?php
-              $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario");
+              //mostrar solo los usuarios activos
+              $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario WHERE estado = 1");
               while ($usuario = mysqli_fetch_assoc($usuarios)) {
                 echo "<option value='{$usuario['id']}'>{$usuario['nombre_completo']}</option>";
               }
@@ -283,7 +284,7 @@ ModalLabel" aria-hidden="true">
               <label for="asignadoAEdit" class="form-label">Asignado A</label>
                 <select class="form-select" id="asignadoAEdit" name="asignado_a">
                   <?php
-                  $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario");
+                  $usuarios = mysqli_query($conn, "SELECT id, nombre_completo FROM usuario WHERE estado =1");
                   while ($usuario = mysqli_fetch_assoc($usuarios)) {
                     echo "<option value='{$usuario['id']}'>{$usuario['nombre_completo']}</option>";
                   }

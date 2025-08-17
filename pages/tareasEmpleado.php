@@ -8,7 +8,10 @@ if (!isset($_SESSION['usuario_id'])) {
 
 if ($_SESSION['rol'] === 'empleado') {
     $empleado_id = $_SESSION['usuario_id'];
-    $empleado_nombre = $_SESSION['nombre'] ?? 'Empleado';
+    $query = mysqli_query($conn, "SELECT nombre_completo FROM usuario WHERE id = $empleado_id LIMIT 1");
+    if ($row = mysqli_fetch_assoc($query)) {
+      $empleado_nombre = htmlspecialchars($row['nombre_completo']);
+    }
     echo "<h2>Tareas asignadas a: $empleado_nombre</h2>";
     // Aquí podrías agregar lógica para mostrar las tareas asignadas al empleado
     // Por ejemplo, podrías hacer una consulta a la base de datos para obtener las tareas asignadas
