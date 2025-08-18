@@ -30,6 +30,12 @@ $rol = $_SESSION['rol'] ?? null;
                     <span data-feather="folder" class="align-text-bottom"></span>
                     Proyectos
                 </a>
+            <li class="nav-item">
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="notificaciones.php"?'active':''?>" href="notificaciones.php">
+                    <span data-feather="check-square" class="align-text-bottom"></span>
+                    Notificaciones
+                </a>       
+            </li>
                     <?php
                     // Mostrar etiquetas asignadas al empleado
                     if (isset($_SESSION['id'])) {
@@ -100,6 +106,12 @@ $rol = $_SESSION['rol'] ?? null;
                     <span data-feather="check-square" class="align-text-bottom"></span>
                     Tareas Personales
                 </a>
+                <li class="nav-item">
+                    <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="notificaciones.php"?'active':''?>" href="notificaciones.php">
+                        <span data-feather="bell" class="align-text-bottom"></span>
+                        Notificaciones
+                    </a>
+                </li>
                 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
                     <span>Proyectos</span>
                 </h6>
