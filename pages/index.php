@@ -1,45 +1,49 @@
 <?php
 require '../system/session.php';
 require '../layout/header.php';
+
+// Consultar últimas 5 tareas del usuario (pendientes)
+$sql = "SELECT titulo, fecha_asignacion, estado 
+        FROM tareas 
+        WHERE asignado_a = ? 
+          AND activo = 1 
+          AND estado != 'completado'
+        ORDER BY fecha_asignacion ASC
+        LIMIT 5";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $_SESSION['usuario_id']);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
-<HTML:5>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Notes Hoy</title>
-    <link rel="stylesheet" href="../css/styles.css">
-    <script src="../js/scripts.js"></script>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <?php require '../layout/sidebar.php'; ?>
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Hoy</h1>
+
+<div class="container mt-4">
+    <h1 class="mb-4">Bienvenido a DailyNotes</h1>
+
+    <h3>Tus próximas tareas</h3>
+    <div class="list-group">
+        <?php if ($result->num_rows == 0): ?>
+            <p class="text-muted">No tienes tareas pendientes.</p>
+        <?php else: ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <strong><?= htmlspecialchars($row['titulo']) ?></strong>
+                        <br>
+                        <small class="text-muted">
+                            <?= htmlspecialchars($row['fecha_asignacion']) ?>
+                        </small>
+                    </span>
+                    <span class="badge bg-info text-dark">
+                        <?= ucfirst(htmlspecialchars($row['estado'])) ?>
+                    </span>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm">
-                        <thead>
-                            <tr>
-                                <th>Tarea</th>
-                                <th>Eiqueta</th>
-                                <th>Fecha</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Aquí se mostrarán las tareas del día -->
-                            <?php
-                            // Código para obtener y mostrar las tareas del día
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
-            </main>
-        </div>
+            <?php endwhile; ?>
+        <?php endif; ?>
     </div>
-    <?php require '../layout/footer.php'; ?>
-</HTML:5>
+
+    <div class="mt-3">
+        <a href="tareas.php" class="btn btn-primary">Ver todas tus tareas</a>
+    </div>
+</div>
+
+<?php require '../layout/footer.php'; ?>
