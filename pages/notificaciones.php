@@ -12,7 +12,7 @@ $sql = "SELECT id, titulo, fecha_asignacion
         WHERE asignado_a = ? 
           AND activo = 1 
           AND estado != 'completado' 
-          AND TIMESTAMPDIFF(MINUTE, NOW(), fecha_asignacion) BETWEEN 0 AND 5";
+          AND TIMESTAMPDIFF(MINUTE, NOW(), fecha_asignacion) BETWEEN 0 AND 10";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('i', $usuario_id); // Solo se pasa $usuario_id
@@ -43,7 +43,7 @@ $stmt_notif->bind_param('i', $usuario_id);
 $stmt_notif->execute();
 $result_notif = $stmt_notif->get_result();
 
-echo '<div class="notificaciones">';
+echo '<div class="Recordatorios">';
 echo '<h2>Recordatorios</h2>';
 
 if ($result_notif->num_rows == 0) {

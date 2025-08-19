@@ -141,7 +141,7 @@ if (isset($_POST['accion'])) {
         <th>Estado</th>
         <th>Prioridad</th>
         <th>Fecha Asignacion</th>
-        <th>Etiqueta</th> 
+        <th>Proyecto</th> 
         <th>Acciones</th>
         
       </tr>

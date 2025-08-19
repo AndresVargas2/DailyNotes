@@ -32,8 +32,8 @@ $rol = $_SESSION['rol'] ?? null;
                 </a>
             <li class="nav-item">
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF'])=="notificaciones.php"?'active':''?>" href="notificaciones.php">
-                    <span data-feather="check-square" class="align-text-bottom"></span>
-                    Notificaciones
+                    <span data-feather="bell" class="align-text-bottom"></span>
+                    Recordatorios
                 </a>       
             </li>
                     <?php

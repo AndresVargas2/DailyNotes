@@ -17,7 +17,7 @@ if ($_SESSION['rol'] === 'empleado') {
     echo "<h2>Tareas asignadas para: $empleado_nombre</h2>";
     // Aquí podrías agregar lógica para mostrar las tareas asignadas al empleado
     // Por ejemplo, podrías hacer una consulta a la base de datos para obtener las tareas asignadas
-    $tareas = mysqli_query($conn, "SELECT * FROM tareas WHERE asignado_a = $empleado_id AND activo != 0 AND estado  = 'pendiente' OR 'en_progreso' ORDER BY fecha_asignacion ASC");
+    $tareas = mysqli_query($conn, "SELECT * FROM tareas WHERE asignado_a = $empleado_id AND activo != 0 AND estado  != 'completado' ORDER BY fecha_asignacion ASC");
     if (mysqli_num_rows($tareas) == 0) {
         echo "<p>No tienes tareas asignadas actualmente.</p>";
     } else {
